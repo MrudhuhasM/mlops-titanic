@@ -4,8 +4,9 @@ Loads directory paths and exposes them as constants.
 """
 
 import os
-from omegaconf import OmegaConf
+from omegaconf import OmegaConf, DictConfig
 import hydra
+
 
 # Path to config.yaml (relative to project root)
 _CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "conf", "config.yaml")
@@ -13,6 +14,13 @@ _CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__fi
 
 _cfg = OmegaConf.load(_CONFIG_PATH)
 DIR_PATHS = _cfg.dir_paths if hasattr(_cfg, "dir_paths") else {}
+APP = _cfg.app if hasattr(_cfg, "app") and _cfg.app else {}
+
+
+
+# print(_cfg)
+# print(DIR_PATHS)
+# print(DEFAULTS)
 
 # Expose as constants (use getattr for fallback)
 RAW_DATA_DIR = getattr(DIR_PATHS, "data_raw", "data/raw")
@@ -24,9 +32,13 @@ MODELS_DIR = getattr(DIR_PATHS, "models", "artifacts/models")
 REPORTS_DIR = getattr(DIR_PATHS, "reports", "artifacts/reports")
 NOTEBOOKS_DIR = getattr(DIR_PATHS, "notebooks", "notebooks")
 LOGS_DIR = getattr(DIR_PATHS, "logs", "logs")
+LOG_LEVEL = getattr(APP, "log_level", "INFO").upper()
+ENV = getattr(APP, "env", "local").lower()
+
 
 # Optionally, provide a function to reload config if needed
 def reload_config():
     global _cfg, DIR_PATHS
     _cfg = OmegaConf.load(_CONFIG_PATH)
     DIR_PATHS = _cfg.dir_paths if hasattr(_cfg, "dir_paths") else {}
+
