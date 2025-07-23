@@ -1,32 +1,32 @@
-from pathlib import Path
+"""
+Project configuration loader using Hydra and OmegaConf.
+Loads directory paths and exposes them as constants.
+"""
 
-from dotenv import load_dotenv
-from loguru import logger
+import os
+from omegaconf import OmegaConf
+import hydra
 
-# Load environment variables from .env file if it exists
-load_dotenv()
+# Path to config.yaml (relative to project root)
+_CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "conf", "config.yaml")
 
-# Paths
-PROJ_ROOT = Path(__file__).resolve().parents[1]
-logger.info(f"PROJ_ROOT path is: {PROJ_ROOT}")
 
-DATA_DIR = PROJ_ROOT / "data"
-RAW_DATA_DIR = DATA_DIR / "raw"
-INTERIM_DATA_DIR = DATA_DIR / "interim"
-PROCESSED_DATA_DIR = DATA_DIR / "processed"
-EXTERNAL_DATA_DIR = DATA_DIR / "external"
+_cfg = OmegaConf.load(_CONFIG_PATH)
+DIR_PATHS = _cfg.dir_paths if hasattr(_cfg, "dir_paths") else {}
 
-MODELS_DIR = PROJ_ROOT / "models"
+# Expose as constants (use getattr for fallback)
+RAW_DATA_DIR = getattr(DIR_PATHS, "data_raw", "data/raw")
+PROCESSED_DATA_DIR = getattr(DIR_PATHS, "data_processed", "data/processed")
+EXTERNAL_DATA_DIR = getattr(DIR_PATHS, "data_external", "data/external")
+INTERIM_DATA_DIR = getattr(DIR_PATHS, "data_interim", "data/interim")
+ARTIFACTS_DIR = getattr(DIR_PATHS, "artifacts", "artifacts")
+MODELS_DIR = getattr(DIR_PATHS, "models", "artifacts/models")
+REPORTS_DIR = getattr(DIR_PATHS, "reports", "artifacts/reports")
+NOTEBOOKS_DIR = getattr(DIR_PATHS, "notebooks", "notebooks")
+LOGS_DIR = getattr(DIR_PATHS, "logs", "logs")
 
-REPORTS_DIR = PROJ_ROOT / "reports"
-FIGURES_DIR = REPORTS_DIR / "figures"
-
-# If tqdm is installed, configure loguru with tqdm.write
-# https://github.com/Delgan/loguru/issues/135
-try:
-    from tqdm import tqdm
-
-    logger.remove(0)
-    logger.add(lambda msg: tqdm.write(msg, end=""), colorize=True)
-except ModuleNotFoundError:
-    pass
+# Optionally, provide a function to reload config if needed
+def reload_config():
+    global _cfg, DIR_PATHS
+    _cfg = OmegaConf.load(_CONFIG_PATH)
+    DIR_PATHS = _cfg.dir_paths if hasattr(_cfg, "dir_paths") else {}

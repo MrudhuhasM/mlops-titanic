@@ -1,0 +1,12 @@
+
+dir_paths:
+ data_raw: "data/raw"
+ data_processed: "data/processed"
+ data_external: "data/external"
+ data_interim: "data/interim"
+ artifacts: "artifacts"
+ models: "artifacts/models"
+ reports: "artifacts/reports"
+ notebooks: "notebooks"
+ logs: "logs"
+
