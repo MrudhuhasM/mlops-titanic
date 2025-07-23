@@ -6,10 +6,10 @@ from loguru import logger
 import sys
 import os
 from typing import Optional
-from tsp.config.config import LOGS_DIR
+from tsp.config.config import LOGS_DIR, LOG_LEVEL,ENV
 
 def setup_logger(
-    log_level: str = "INFO",
+    log_level: str = LOG_LEVEL,
     log_file: Optional[str] = os.path.join(LOGS_DIR, "app.log"),
     use_tqdm: bool = True,
 ) -> None:
@@ -79,6 +79,8 @@ def tqdm_logging():
 if __name__ == "__main__":
     setup_logger(log_file="logs/app.log")
     logger.info("Logger setup complete.")
+    logger.info(f"Log level set to {LOG_LEVEL}.")
+    logger.info(f"Environment: {ENV}.")
     logger.debug("This is a debug message.")
     logger.warning("This is a warning message.")
     logger.error("This is an error message.")

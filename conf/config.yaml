@@ -1,4 +1,8 @@
 
+defaults:
+  - env: local
+  - _self_
+
 dir_paths:
  data_raw: "data/raw"
  data_processed: "data/processed"
@@ -9,4 +13,10 @@ dir_paths:
  reports: "artifacts/reports"
  notebooks: "notebooks"
  logs: "logs"
+
+app:
+  name: "TSP"
+  version: "0.1.0"
+  log_level: "DEBUG"
+
 
