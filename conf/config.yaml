@@ -14,9 +14,12 @@ dir_paths:
  notebooks: "notebooks"
  logs: "logs"
 
-app:
-  name: "TSP"
-  version: "0.1.0"
-  log_level: "DEBUG"
+# in conf/logging.yaml
+logging:
+  log_file: ${dir_paths.logs}/app.log
+  rotation: "10 MB"
+  retention: 5
+  level: DEBUG
+
 
 

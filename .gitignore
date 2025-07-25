@@ -1,6 +1,9 @@
 # Data
 /data/
 
+#hydra
+outputs/
+
 # Mac OS-specific storage files
 .DS_Store
 
@@ -62,6 +65,9 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+
+#copilot
+.github/copilot-instructions.md
 
 # Translations
 *.mo

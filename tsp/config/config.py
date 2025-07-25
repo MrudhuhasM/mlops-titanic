@@ -1,44 +1,46 @@
-"""
-Project configuration loader using Hydra and OmegaConf.
-Loads directory paths and exposes them as constants.
-"""
 
-import os
-from omegaconf import OmegaConf, DictConfig
+
+from dataclasses import dataclass
+from typing import Optional
 import hydra
+from omegaconf import DictConfig
+
+@dataclass
+class Config:
+    RAW_DATA_DIR = None
+    PROCESSED_DATA_DIR = None
+    INTERIM_DATA_DIR = None
+    MODEL_DIR = None
+    LOG_DIR = None
+    ARTIFACTS_DIR = None
+    LOG_LEVEL = "INFO"
+    LOG_FILE = None
+    LOG_ROTATION = "10 MB"
+    LOG_RETENTION = 5
+    BUCKET_NAME = None
+
+def build_config(cfg: DictConfig):
+    """
+    Build a Config object from Hydra DictConfig.
+    Call this in your CLI entrypoint and pass the result to other modules.
+    """
+    Config.RAW_DATA_DIR = cfg.dir_paths.data_raw
+    Config.PROCESSED_DATA_DIR = cfg.dir_paths.data_processed
+    Config.INTERIM_DATA_DIR = cfg.dir_paths.data_interim
+    Config.MODEL_DIR = cfg.dir_paths.models
+    Config.LOG_DIR = cfg.logging.log_file 
+    Config.ARTIFACTS_DIR = cfg.dir_paths.artifacts
+    Config.LOG_LEVEL = cfg.logging.level
+    Config.LOG_ROTATION = cfg.logging.rotation
+    Config.LOG_RETENTION = cfg.logging.retention
+    Config.BUCKET_NAME = cfg.env.storage.bucket_name
 
 
-# Path to config.yaml (relative to project root)
-_CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "conf", "config.yaml")
-
-
-_cfg = OmegaConf.load(_CONFIG_PATH)
-DIR_PATHS = _cfg.dir_paths if hasattr(_cfg, "dir_paths") else {}
-APP = _cfg.app if hasattr(_cfg, "app") and _cfg.app else {}
-
-
-
-# print(_cfg)
-# print(DIR_PATHS)
-# print(DEFAULTS)
-
-# Expose as constants (use getattr for fallback)
-RAW_DATA_DIR = getattr(DIR_PATHS, "data_raw", "data/raw")
-PROCESSED_DATA_DIR = getattr(DIR_PATHS, "data_processed", "data/processed")
-EXTERNAL_DATA_DIR = getattr(DIR_PATHS, "data_external", "data/external")
-INTERIM_DATA_DIR = getattr(DIR_PATHS, "data_interim", "data/interim")
-ARTIFACTS_DIR = getattr(DIR_PATHS, "artifacts", "artifacts")
-MODELS_DIR = getattr(DIR_PATHS, "models", "artifacts/models")
-REPORTS_DIR = getattr(DIR_PATHS, "reports", "artifacts/reports")
-NOTEBOOKS_DIR = getattr(DIR_PATHS, "notebooks", "notebooks")
-LOGS_DIR = getattr(DIR_PATHS, "logs", "logs")
-LOG_LEVEL = getattr(APP, "log_level", "INFO").upper()
-ENV = getattr(APP, "env", "local").lower()
-
-
-# Optionally, provide a function to reload config if needed
-def reload_config():
-    global _cfg, DIR_PATHS
-    _cfg = OmegaConf.load(_CONFIG_PATH)
-    DIR_PATHS = _cfg.dir_paths if hasattr(_cfg, "dir_paths") else {}
+def set_config(cfg: DictConfig):
+    """
+    Hydra entrypoint for config. Returns a Config object.
+    """
+    config = build_config(cfg)
+    print("Configuration set up successfully.")
+    
 
